@@ -193,8 +193,8 @@ export function initContactForm() {
       invalid[0].focus();
       return;
     }
-    // No delivery channel exists yet: say so plainly instead of faking success
-    status.textContent = "El envío todavía no está configurado, así que tu consulta no se envió. Los canales oficiales se publicarán pronto.";
+    // Keep demo behavior explicit: no data is sent or persisted.
+    status.textContent = "Esta es una demostración: la consulta no se envió ni se guardó.";
     status.hidden = false;
   });
 }
