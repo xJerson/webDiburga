@@ -124,8 +124,8 @@ const defaultMode = coverageModes[0];
   <header class="top">
     <div class="nav wrap">
       <a class="brand-lockup" href="#inicio" aria-label="Diburga, inicio">
-        <img class="brand-d" src="/images/diburga-d.png" alt="" width="48" height="54" />
-        <img class="brand-name" src="/images/diburga-name.svg" alt="Diburga" width="170" height="42" />
+        <img class="brand-d" src={`${import.meta.env.BASE_URL}/images/diburga-d.png`} alt="" width="48" height="54" />
+        <img class="brand-name" src={`${import.meta.env.BASE_URL}/images/diburga-name.svg`} alt="Diburga" width="170" height="42" />
       </a>
       <div class="nav-actions">
         <a class="btn btn-seal nav-cta" href="#contacto">Agendar consulta</a>
@@ -162,25 +162,25 @@ const defaultMode = coverageModes[0];
         <div class="workspace-visual" aria-label="Ambientes interiores de trabajo legal" role="group">
           <div class="workspace-slides" data-workspace-slides>
             <figure class="workspace-slide is-active" role="group" aria-roledescription="diapositiva" aria-label="Sala de consulta" data-workspace-slide aria-hidden="false">
-              <img src="/images/workspaces/consultation.png" alt="" width="1672" height="941" fetchpriority="high" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/consultation.png`} alt="" width="1672" height="941" fetchpriority="high" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Despacho jurídico" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/lawyer-study.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/lawyer-study.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Oficina de fiscalía" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/prosecutor-office.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/prosecutor-office.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Área legal y de cumplimiento corporativo" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/corporate-compliance.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/corporate-compliance.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Notaría y registros públicos" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/notary-registry.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/notary-registry.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Sala de arbitraje" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/arbitration.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/arbitration.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
             <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Sala de audiencias" data-workspace-slide aria-hidden="true" inert>
-              <img src="/images/workspaces/courtroom.png" alt="" width="1672" height="941" loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}/images/workspaces/courtroom.png`} alt="" width="1672" height="941" loading="lazy" />
             </figure>
           </div>
           <div class="workspace-shade" aria-hidden="true"></div>
@@ -235,7 +235,7 @@ const defaultMode = coverageModes[0];
         </div>
         <figure class="arch" data-reveal-arch>
           <span class="arch-outline" aria-hidden="true"></span>
-          <img class="arch-photo" src="/images/diburga-trust.png" alt="Escena representativa de una consulta legal" width="1536" height="1024" />
+          <img class="arch-photo" src={`${import.meta.env.BASE_URL}/images/diburga-trust.png`} alt="Escena representativa de una consulta legal" width="1536" height="1024" />
           <figcaption>Imagen representativa. Será reemplazada por fotografía oficial.</figcaption>
         </figure>
       </div>
@@ -347,7 +347,7 @@ const defaultMode = coverageModes[0];
     <section class="band band-marble commitment" id="compromiso">
       <div class="wrap commitment-grid">
         <figure class="commitment-photo" data-curtain>
-          <img src="/images/diburga-commitment.png" alt="Escena representativa de compromiso y trabajo legal" width="1122" height="1402" loading="lazy" />
+          <img src={`${import.meta.env.BASE_URL}/images/diburga-commitment.png`} alt="Escena representativa de compromiso y trabajo legal" width="1122" height="1402" loading="lazy" />
         </figure>
         <div class="commitment-copy">
           <h2 data-split>Avanzar no es correr. Es saber qué sigue.</h2>
@@ -436,8 +436,8 @@ const defaultMode = coverageModes[0];
   <footer class="site-footer">
     <div class="wrap footer-top">
       <a class="brand-lockup footer-brand" href="#inicio" aria-label="Diburga, inicio">
-        <img class="brand-d" src="/images/diburga-d.png" alt="" width="48" height="54" />
-        <img class="brand-name" src="/images/diburga-name.svg" alt="Diburga" width="170" height="42" />
+        <img class="brand-d" src={`${import.meta.env.BASE_URL}/images/diburga-d.png`} alt="" width="48" height="54" />
+        <img class="brand-name" src={`${import.meta.env.BASE_URL}/images/diburga-name.svg`} alt="Diburga" width="170" height="42" />
       </a>
       <p class="footer-intro">Orientación legal para comprender, ordenar y decidir con mayor claridad.</p>
       <nav class="footer-nav" aria-label="Navegación del pie de página">
@@ -548,3 +548,5 @@ const defaultMode = coverageModes[0];
     }
   </script>
 </BaseLayout>
+
+\n
