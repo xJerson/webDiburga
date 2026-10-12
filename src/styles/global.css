@@ -142,7 +142,7 @@ textarea {
   z-index: 1;
   left: 0;
   right: 0;
-  bottom: -0.2em;
+  bottom: 0.06em;
   margin: 0;
   overflow: hidden;
   font-family: var(--font-display);
