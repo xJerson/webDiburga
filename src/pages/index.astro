@@ -1,0 +1,550 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+type Area = { id: string; name: string; description: string };
+type AreaGroup = { title: string; areas: Area[] };
+
+const areaGroups: AreaGroup[] = [
+  {
+    title: "Personas y familia",
+    areas: [
+      { id: "civil", name: "Civil", description: "Contratos, obligaciones, responsabilidad y conflictos entre particulares." },
+      { id: "familia", name: "Familia", description: "Alimentos, tenencia, régimen de visitas, divorcio y sucesiones." },
+      { id: "consumidor", name: "Consumidor", description: "Reclamos por productos o servicios que no cumplieron lo ofrecido." },
+    ],
+  },
+  {
+    title: "Defensa y trabajo",
+    areas: [
+      { id: "penal", name: "Penal", description: "Orientación si eres denunciado, investigado o víctima de un delito." },
+      { id: "laboral", name: "Laboral", description: "Despidos, beneficios sociales y relaciones entre trabajador y empleador." },
+    ],
+  },
+  {
+    title: "Empresas y patrimonio",
+    areas: [
+      { id: "comercial", name: "Comercial", description: "Acuerdos entre empresas, contratos comerciales y cobranzas." },
+      { id: "corporativo", name: "Corporativo", description: "Constitución de empresas, relación entre socios, estatutos y acuerdos societarios." },
+      { id: "inmobiliario", name: "Inmobiliario", description: "Compraventa, arrendamiento, saneamiento y conflictos sobre inmuebles." },
+      { id: "propiedad-intelectual", name: "Propiedad intelectual", description: "Registro y defensa de marcas, obras y otros signos distintivos." },
+    ],
+  },
+  {
+    title: "Estado y regulación",
+    areas: [
+      { id: "administrativo", name: "Administrativo", description: "Trámites, procedimientos y recursos ante entidades públicas." },
+      { id: "ambiental", name: "Ambiental", description: "Permisos, obligaciones y procedimientos vinculados al ambiente." },
+    ],
+  },
+];
+
+const allAreas = areaGroups.flatMap((group) => group.areas);
+
+const stats = [
+  { value: allAreas.length, label: "áreas de práctica para orientar tu caso" },
+  { value: 2, label: "ciudades con atención presencial coordinada: Lima y Ayacucho" },
+  { value: 25, label: "regiones del país con atención virtual" },
+];
+
+const steps = [
+  { title: "Escuchamos", description: "Compartes lo esencial y coordinamos una primera conversación." },
+  { title: "Ordenamos", description: "Revisamos el contexto y la información que ya tienes disponible." },
+  { title: "Definimos", description: "Aclaramos qué paso corresponde y cómo puede continuar la atención." },
+];
+
+const menuLinks = [
+  { href: "#encuentra", label: "Encuentra tu área" },
+  { href: "#areas", label: "Áreas de práctica" },
+  { href: "#cobertura", label: "Cobertura" },
+  { href: "#compromiso", label: "Compromiso" },
+  { href: "#proceso", label: "Proceso" },
+  { href: "#contacto", label: "Contacto" },
+];
+
+const introLetters = ["I", "B", "U", "R", "G", "A"];
+
+// Simplified Peru border as [longitude, latitude], projected equirectangularly
+const peruBorder: [number, number][] = [
+  [-80.3, -3.4], [-81.1, -4.1], [-81.33, -4.68], [-80.9, -5.8], [-79.84, -6.77],
+  [-79.03, -8.11], [-78.58, -9.07], [-77.6, -10.7], [-77.15, -12.05], [-76.2, -13.7],
+  [-75.9, -14.8], [-75.1, -15.4], [-73.9, -16.2], [-72.7, -16.7], [-71.34, -17.64],
+  [-70.4, -18.35], [-69.5, -17.5], [-69.04, -16.57], [-68.9, -15.9], [-69.4, -15.3],
+  [-69.2, -14.5], [-68.7, -12.5], [-69.58, -10.95], [-70.62, -11.0], [-70.6, -9.45],
+  [-72.2, -9.95], [-73.2, -9.4], [-73.9, -7.6], [-73.0, -6.0], [-71.9, -5.0],
+  [-70.0, -4.25], [-70.7, -3.8], [-72.0, -2.4], [-73.6, -1.3], [-74.8, -0.2],
+  [-75.2, -0.04], [-75.6, -0.4], [-75.3, -1.5], [-76.6, -2.6], [-77.9, -3.0],
+  [-78.4, -3.9], [-79.0, -5.0], [-79.5, -4.5], [-80.1, -4.3],
+];
+
+const SCALE = 40;
+const PAD = 24;
+const MIN_LON = -81.4;
+const project = ([lon, lat]: [number, number]) => [
+  +((lon - MIN_LON) * SCALE + PAD).toFixed(1),
+  +(-lat * SCALE + PAD).toFixed(1),
+];
+const mapWidth = Math.round((-68.6 - MIN_LON) * SCALE + PAD * 2);
+const mapHeight = Math.round(18.4 * SCALE + PAD * 2);
+const peruPoints = peruBorder.map((point) => project(point).join(",")).join(" ");
+
+const offices = [
+  { id: "lima", city: "Lima", coords: [-77.04, -12.05] as [number, number], labelSide: "start" },
+  { id: "ayacucho", city: "Ayacucho", coords: [-74.22, -13.16] as [number, number], labelSide: "end" },
+].map((office) => {
+  const [x, y] = project(office.coords);
+  return { ...office, x, y };
+});
+
+const coverageModes = [
+  {
+    id: "virtual",
+    label: "Virtual",
+    mode: "Atención virtual en todo el país",
+    includes: ["Conversación por videollamada o llamada", "Revisión de documentos en formato digital", "Seguimiento a distancia desde cualquier región"],
+  },
+  {
+    id: "lima",
+    label: "Lima",
+    mode: "Atención presencial coordinada en Lima",
+    includes: ["Reunión en persona previa coordinación", "Revisión de documentos físicos", "Opción de continuar de forma virtual"],
+  },
+  {
+    id: "ayacucho",
+    label: "Ayacucho",
+    mode: "Atención presencial coordinada en Ayacucho",
+    includes: ["Reunión en persona previa coordinación", "Revisión de documentos físicos", "Opción de continuar de forma virtual"],
+  },
+];
+const defaultMode = coverageModes[0];
+---
+<BaseLayout title="Diburga | Orientación legal con claridad" description="Orientación legal virtual en todo el Perú y atención presencial coordinada en Ayacucho y Lima.">
+  <a class="skip-link" href="#contenido">Ir al contenido</a>
+  <p class="watermark" aria-hidden="true">Diburga</p>
+
+  <header class="top">
+    <div class="nav wrap">
+      <a class="brand-lockup" href="#inicio" aria-label="Diburga, inicio">
+        <img class="brand-d" src="/images/diburga-d.png" alt="" width="48" height="54" />
+        <img class="brand-name" src="/images/diburga-name.svg" alt="Diburga" width="170" height="42" />
+      </a>
+      <div class="nav-actions">
+        <a class="btn btn-seal nav-cta" href="#contacto">Agendar consulta</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+          <span class="menu-toggle-lines" aria-hidden="true"></span>
+          <span class="menu-toggle-label">Menú</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú principal" hidden data-menu>
+    <div class="menu-inner wrap">
+      <button class="menu-close" type="button" data-menu-close>Cerrar</button>
+      <nav aria-label="Secciones">
+        <ul class="menu-links">
+          {menuLinks.map((link) => (
+            <li><a href={link.href} data-menu-link>{link.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+      <div class="menu-aside">
+        <p>Atención virtual en todo el Perú.</p>
+        <p>Atención presencial coordinada en Lima y Ayacucho.</p>
+        <a class="btn btn-seal" href="#contacto" data-menu-link>Agendar consulta</a>
+      </div>
+    </div>
+  </div>
+
+  <main id="inicio">
+    <!-- Interior workspace carousel: a visual portrait of legal work, not a case timeline -->
+    <section class="intro workspace-hero" id="contenido" role="region" aria-roledescription="carrusel" aria-labelledby="hero-title" data-workspace-carousel>
+      <div class="workspace-hero-inner">
+        <div class="workspace-visual" aria-label="Ambientes interiores de trabajo legal" role="group">
+          <div class="workspace-slides" data-workspace-slides>
+            <figure class="workspace-slide is-active" role="group" aria-roledescription="diapositiva" aria-label="Sala de consulta" data-workspace-slide aria-hidden="false">
+              <img src="/images/workspaces/consultation.png" alt="" width="1672" height="941" fetchpriority="high" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Despacho jurídico" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/lawyer-study.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Oficina de fiscalía" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/prosecutor-office.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Área legal y de cumplimiento corporativo" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/corporate-compliance.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Notaría y registros públicos" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/notary-registry.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Sala de arbitraje" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/arbitration.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+            <figure class="workspace-slide" role="group" aria-roledescription="diapositiva" aria-label="Sala de audiencias" data-workspace-slide aria-hidden="true" inert>
+              <img src="/images/workspaces/courtroom.png" alt="" width="1672" height="941" loading="lazy" />
+            </figure>
+          </div>
+          <div class="workspace-shade" aria-hidden="true"></div>
+          <div class="workspace-caption wrap">
+            <p class="workspace-kicker">Diburga · Trabajo legal en movimiento</p>
+            <h1 id="hero-title">Claridad para dar el siguiente paso.</h1>
+            <div class="workspace-action">
+              <p>Entre consultas, análisis y audiencias, estamos donde el trabajo legal sucede.</p>
+              <a class="btn btn-seal" href="#encuentra">Ver cómo te ayudamos</a>
+            </div>
+          </div>
+          <div class="workspace-controls" role="group" aria-label="Controles del carrusel">
+            <button type="button" class="workspace-arrow" data-workspace-prev aria-label="Ver ambiente anterior">←</button>
+            <div class="workspace-pickers" role="group" aria-label="Elegir ambiente">
+              <button type="button" class="workspace-picker is-active" data-workspace-to="0" aria-label="Sala de consulta" aria-pressed="true"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="1" aria-label="Despacho jurídico" aria-pressed="false"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="2" aria-label="Oficina de fiscalía" aria-pressed="false"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="3" aria-label="Área legal y de cumplimiento corporativo" aria-pressed="false"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="4" aria-label="Notaría y registros públicos" aria-pressed="false"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="5" aria-label="Sala de arbitraje" aria-pressed="false"></button>
+              <button type="button" class="workspace-picker" data-workspace-to="6" aria-label="Sala de audiencias" aria-pressed="false"></button>
+            </div>
+            <button type="button" class="workspace-toggle" data-workspace-toggle aria-pressed="false">Pausar</button>
+            <button type="button" class="workspace-arrow" data-workspace-next aria-label="Ver ambiente siguiente">→</button>
+            <p class="visually-hidden" aria-live="polite" data-workspace-status>Sala de consulta</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Finder: pick a situation, jump to the matching practice area -->
+    <section class="band band-marble finder" id="encuentra">
+      <div class="wrap finder-grid">
+        <div class="finder-copy">
+          <h2 data-split>¿Qué necesitas resolver?</h2>
+          <p>Elige el área que más se parece a tu situación y te mostramos cómo podemos orientarte. Si no estás seguro, empieza por la que creas más cercana.</p>
+          <form class="finder-form" action="#areas" data-finder>
+            <label for="finder-area">Área legal</label>
+            <div class="finder-row">
+              <select id="finder-area" name="area" required>
+                <option value="" disabled selected>Selecciona un área</option>
+                {areaGroups.map((group) => (
+                  <optgroup label={group.title}>
+                    {group.areas.map((area) => <option value={area.id}>{area.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              <button class="btn btn-seal" type="submit">Ver cómo te ayudamos</button>
+            </div>
+            <p class="field-error" id="finder-error" hidden>Selecciona un área para continuar.</p>
+          </form>
+        </div>
+        <figure class="arch" data-reveal-arch>
+          <span class="arch-outline" aria-hidden="true"></span>
+          <img class="arch-photo" src="/images/diburga-trust.png" alt="Escena representativa de una consulta legal" width="1536" height="1024" />
+          <figcaption>Imagen representativa. Será reemplazada por fotografía oficial.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Statement and verified figures -->
+    <section class="band band-slate statement">
+      <div class="wrap">
+        <h2 class="statement-title" data-split>El derecho puede ser complejo. La primera conversación no debería serlo.</h2>
+        <div class="statement-body">
+          <p>Antes de documentos, plazos o decisiones, hay una pregunta más importante: qué está pasando y qué alternativas existen. Diburga abre ese espacio con escucha, orden y criterio.</p>
+          <dl class="stats">
+            {stats.map((stat) => (
+              <div class="stat">
+                <dt>{stat.label}</dt>
+                <dd><span data-count={stat.value}>{stat.value}</span></dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Practice areas: grouped accordion -->
+    <section class="band band-marble practices" id="areas">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 data-split>Áreas de práctica</h2>
+          <p>No necesitas conocer la categoría jurídica exacta. Abre la que más se parece a tu situación.</p>
+        </div>
+        <div class="practice-groups">
+          {areaGroups.map((group) => (
+            <div class="practice-group" data-reveal>
+              <h3 class="practice-group-title">{group.title}</h3>
+              <ul class="practice-list">
+                {group.areas.map((area) => (
+                  <li class="practice" id={`area-${area.id}`} data-practice>
+                    <h4 class="practice-heading">
+                      <button type="button" class="practice-toggle" aria-expanded="false" aria-controls={`panel-${area.id}`} data-practice-toggle>
+                        <span class="practice-name">{area.name}</span>
+                        <span class="practice-icon" aria-hidden="true"></span>
+                      </button>
+                    </h4>
+                    <div class="practice-panel" id={`panel-${area.id}`} role="region" aria-label={area.name}>
+                      <div class="practice-panel-inner">
+                        <p>{area.description}</p>
+                        <a class="text-link" href="#contacto" data-area-link={area.id}>Consultar sobre {area.name.toLowerCase()}</a>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Coverage map with mode selector -->
+    <section class="band band-slate coverage" id="cobertura">
+      <div class="wrap coverage-grid">
+        <div class="coverage-copy">
+          <h2 data-split>Atención en todo el Perú</h2>
+          <p>Te orientamos de forma virtual desde cualquier región. Si tu caso lo requiere, coordinamos una reunión presencial en Lima o Ayacucho.</p>
+          <div class="chips" role="group" aria-label="Elige una modalidad">
+            {coverageModes.map((mode) => (
+              <button
+                type="button"
+                class="chip"
+                aria-pressed={mode.id === defaultMode.id ? "true" : "false"}
+                data-chip={mode.id}
+              >{mode.label}</button>
+            ))}
+          </div>
+          <div class="coverage-panel" aria-live="polite" data-coverage-panel>
+            <p class="coverage-mode" data-coverage-mode>{defaultMode.mode}</p>
+            <ul class="coverage-includes" data-coverage-includes>
+              {defaultMode.includes.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+          <ul class="coverage-legend">
+            <li><span class="legend-swatch legend-virtual" aria-hidden="true"></span>Atención virtual</li>
+            <li><span class="legend-swatch legend-office" aria-hidden="true"></span>Atención presencial coordinada</li>
+          </ul>
+          <script type="application/json" data-coverage-data set:html={JSON.stringify(coverageModes)} />
+        </div>
+        <figure class="coverage-map" data-map data-active="virtual">
+          <svg viewBox={`0 0 ${mapWidth} ${mapHeight}`} role="img" aria-labelledby="map-title">
+            <title id="map-title">Mapa del Perú con atención virtual en todo el país y presencial en Lima y Ayacucho</title>
+            <polygon class="map-country" points={peruPoints} pathLength="1" data-map-outline />
+            {offices.map((office) => (
+              <g class="map-point" data-point={office.id}>
+                <circle class="map-halo" cx={office.x} cy={office.y} r="24" />
+                <circle class="map-dot" cx={office.x} cy={office.y} r="9" />
+                <text
+                  class="map-label"
+                  x={office.labelSide === "start" ? office.x - 22 : office.x + 22}
+                  y={office.y + 7}
+                  text-anchor={office.labelSide === "start" ? "end" : "start"}
+                >{office.city}</text>
+              </g>
+            ))}
+          </svg>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Commitment -->
+    <section class="band band-marble commitment" id="compromiso">
+      <div class="wrap commitment-grid">
+        <figure class="commitment-photo" data-curtain>
+          <img src="/images/diburga-commitment.png" alt="Escena representativa de compromiso y trabajo legal" width="1122" height="1402" loading="lazy" />
+        </figure>
+        <div class="commitment-copy">
+          <h2 data-split>Avanzar no es correr. Es saber qué sigue.</h2>
+          <p>El compromiso se demuestra en el proceso: revisar con rigor, explicar sin rodeos y sostener una ruta comprensible desde el primer contacto.</p>
+          <ul class="principles">
+            <li data-reveal>Comunicación clara, sin promesas que no corresponden.</li>
+            <li data-reveal>Orientación pensada para que decidas con mayor seguridad.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process: a real sequence -->
+    <section class="band band-slate process" id="proceso">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 data-split>Un recorrido sereno, paso a paso</h2>
+        </div>
+        <ol class="steps" data-steps>
+          {steps.map((step, index) => (
+            <li class="step">
+              <span class="step-number" aria-hidden="true">{index + 1}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- Closing statement -->
+    <section class="band band-marble closing">
+      <div class="wrap closing-inner">
+        <p class="closing-text" data-split>No tienes que tener todas las respuestas para empezar. Solo contarnos qué está pasando.</p>
+        <a class="btn btn-outline" href="#contacto">Contar mi caso</a>
+      </div>
+    </section>
+
+    <!-- Contact form (sending not configured yet) -->
+    <section class="band band-slate contact" id="contacto" data-contact>
+      <div class="wrap contact-grid">
+        <div class="contact-copy">
+          <h2 data-split>Tu situación merece una conversación clara.</h2>
+          <p>Cuéntanos lo esencial. Con esa información preparamos la primera conversación.</p>
+          <p class="contact-pending">Los canales oficiales de atención se incorporarán antes de publicar el sitio.</p>
+        </div>
+        <form class="contact-form" novalidate data-contact-form>
+          <noscript><p class="form-notice">Activa JavaScript para usar el formulario.</p></noscript>
+          <fieldset disabled data-contact-fields>
+            <legend class="visually-hidden">Datos de tu consulta</legend>
+            <div class="field">
+              <label for="cf-name">Nombre</label>
+              <input id="cf-name" name="name" type="text" autocomplete="name" required aria-describedby="cf-name-error" />
+              <p class="field-error" id="cf-name-error" hidden>Escribe tu nombre.</p>
+            </div>
+            <div class="field">
+              <label for="cf-phone">Teléfono</label>
+              <input id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="[0-9+ ]{7,15}" aria-describedby="cf-phone-error" />
+              <p class="field-error" id="cf-phone-error" hidden>Escribe un teléfono de 7 a 15 dígitos.</p>
+            </div>
+            <div class="field">
+              <label for="cf-area">Área</label>
+              <select id="cf-area" name="area" required aria-describedby="cf-area-error">
+                <option value="" selected>Selecciona un área</option>
+                {areaGroups.map((group) => (
+                  <optgroup label={group.title}>
+                    {group.areas.map((area) => <option value={area.id}>{area.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              <p class="field-error" id="cf-area-error" hidden>Selecciona el área de tu consulta.</p>
+            </div>
+            <div class="field">
+              <label for="cf-message">Mensaje</label>
+              <textarea id="cf-message" name="message" rows="5" required minlength="10" aria-describedby="cf-message-error"></textarea>
+              <p class="field-error" id="cf-message-error" hidden>Cuéntanos tu situación en al menos 10 caracteres.</p>
+            </div>
+            <button class="btn btn-seal" type="submit">Enviar consulta</button>
+            <p class="form-notice" role="status" data-form-status hidden></p>
+          </fieldset>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-top">
+      <a class="brand-lockup footer-brand" href="#inicio" aria-label="Diburga, inicio">
+        <img class="brand-d" src="/images/diburga-d.png" alt="" width="48" height="54" />
+        <img class="brand-name" src="/images/diburga-name.svg" alt="Diburga" width="170" height="42" />
+      </a>
+      <p class="footer-intro">Orientación legal para comprender, ordenar y decidir con mayor claridad.</p>
+      <nav class="footer-nav" aria-label="Navegación del pie de página">
+        <a href="#areas">Áreas</a>
+        <a href="#cobertura">Cobertura</a>
+        <a href="#compromiso">Compromiso</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>Atención virtual en todo el Perú. Atención presencial coordinada en Ayacucho y Lima.</p>
+      <p>La información de este sitio es referencial y no constituye asesoría legal para un caso concreto.</p>
+      <p>© {new Date().getFullYear()} Diburga</p>
+    </div>
+  </footer>
+
+  <a class="fab" href="#contacto" data-fab>Consultar</a>
+
+  <script>
+    import "../scripts/site";
+
+    const carousel = document.querySelector<HTMLElement>("[data-workspace-carousel]");
+    if (carousel) {
+      document.documentElement.style.setProperty("--wm", "1");
+      const slides = [...carousel.querySelectorAll<HTMLElement>("[data-workspace-slide]")];
+      const pickers = [...carousel.querySelectorAll<HTMLButtonElement>("[data-workspace-to]")];
+      const status = carousel.querySelector<HTMLElement>("[data-workspace-status]");
+      const toggle = carousel.querySelector<HTMLButtonElement>("[data-workspace-toggle]");
+      const names = ["Sala de consulta", "Despacho jurídico", "Oficina de fiscalía", "Área legal y de cumplimiento corporativo", "Notaría y registros públicos", "Sala de arbitraje", "Sala de audiencias"];
+      const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const interval = 6500;
+      let active = 0;
+      let timer: number | undefined;
+      let userPaused = false;
+      let pointerInside = false;
+      let focusInside = false;
+
+      const show = (index: number, announce = false) => {
+        active = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+          const selected = i === active;
+          slide.classList.toggle("is-active", selected);
+          slide.setAttribute("aria-hidden", String(!selected));
+          if (selected) slide.removeAttribute("inert");
+          else slide.setAttribute("inert", "");
+        });
+        pickers.forEach((button, i) => {
+          const selected = i === active;
+          button.classList.toggle("is-active", selected);
+          button.setAttribute("aria-pressed", String(selected));
+        });
+        if (announce && status) status.textContent = names[active];
+      };
+
+      const syncPlayback = () => {
+        if (timer !== undefined) window.clearTimeout(timer);
+        timer = undefined;
+        const systemPaused = motionPreference.matches || document.hidden;
+        const temporarilyPaused = pointerInside || focusInside;
+        if (toggle) {
+          toggle.disabled = motionPreference.matches;
+          toggle.textContent = motionPreference.matches ? "Automático desactivado" : userPaused ? "Reanudar" : "Pausar";
+          toggle.setAttribute("aria-label", motionPreference.matches
+            ? "El avance automático está desactivado por tu preferencia de movimiento reducido"
+            : userPaused ? "Reanudar el recorrido automático" : "Pausar el recorrido automático");
+          toggle.setAttribute("aria-pressed", String(userPaused));
+        }
+        if (systemPaused || temporarilyPaused || userPaused) return;
+        timer = window.setTimeout(() => {
+          show(active + 1);
+          syncPlayback();
+        }, interval);
+      };
+
+      pickers.forEach((button) => button.addEventListener("click", () => {
+        show(Number(button.dataset.workspaceTo), true);
+        syncPlayback();
+      }));
+      carousel.querySelector("[data-workspace-prev]")?.addEventListener("click", () => {
+        show(active - 1, true);
+        syncPlayback();
+      });
+      carousel.querySelector("[data-workspace-next]")?.addEventListener("click", () => {
+        show(active + 1, true);
+        syncPlayback();
+      });
+      carousel.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") { event.preventDefault(); show(active - 1, true); syncPlayback(); }
+        if (event.key === "ArrowRight") { event.preventDefault(); show(active + 1, true); syncPlayback(); }
+      });
+      toggle?.addEventListener("click", () => {
+        userPaused = !userPaused;
+        syncPlayback();
+      });
+      carousel.addEventListener("pointerenter", () => { pointerInside = true; syncPlayback(); });
+      carousel.addEventListener("pointerleave", () => { pointerInside = false; syncPlayback(); });
+      carousel.addEventListener("focusin", () => { focusInside = true; syncPlayback(); });
+      carousel.addEventListener("focusout", (event) => {
+        if (!carousel.contains(event.relatedTarget as Node | null)) {
+          focusInside = false;
+          syncPlayback();
+        }
+      });
+      document.addEventListener("visibilitychange", syncPlayback);
+      motionPreference.addEventListener("change", syncPlayback);
+      syncPlayback();
+    }
+  </script>
+</BaseLayout>

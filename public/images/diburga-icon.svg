@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 72" role="img" aria-labelledby="title">
+  <title id="title">Diburga</title>
+  <defs><linearGradient id="gold" x1="7" y1="8" x2="59" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#F4D398"/><stop offset=".5" stop-color="#B88742"/><stop offset="1" stop-color="#F1D39A"/></linearGradient></defs>
+  <path d="M8 7h19c18 0 29 12 29 29S45 65 27 65H8V7Zm11 10v38h8c11 0 18-7 18-19s-7-19-18-19h-8Z" fill="url(#gold)"/>
+  <path d="M11 14h21v6H11zm5 9h5v27h-5zm9 0h5v27h-5zM11 50h21v6H11z" fill="url(#gold)"/>
+</svg>
